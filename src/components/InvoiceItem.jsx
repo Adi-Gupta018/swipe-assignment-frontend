@@ -5,44 +5,8 @@ import Button from "react-bootstrap/Button";
 import { BiTrash } from "react-icons/bi";
 import EditableField from "./EditableField";
 import { selectItemsList } from "../redux/itemSlice";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
-// const InvoiceItem = (props) => {
-//   const { onItemizedItemEdit, currency, onRowDel, items, onRowAdd } = props;
-//   console.log(props);
-
-//   const itemTable = items.map((item) => (
-//     <>
-//     <ItemRow
-//       key={item.id}
-//       item={item}
-//       onDelEvent={onRowDel}
-//       onItemizedItemEdit={onItemizedItemEdit}
-//       currency={currency}
-//     />
-//     {/* <div>{console.log("map",item)}</div> */}
-//     </>
-//   ));
-
-//   return (
-//     <div>
-//       <Table>
-//         <thead>
-//           <tr>
-//             <th>ITEM</th>
-//             <th>QTY</th>
-//             <th>PRICE/RATE</th>
-//             <th className="text-center">ACTION</th>
-//           </tr>
-//         </thead>
-//         <tbody>{itemTable}</tbody>
-//       </Table>
-//       <Button className="fw-bold" onClick={onRowAdd}>
-//         Add Item
-//       </Button>
-//     </div>
-//   );
-// };
 
 const InvoiceItem = (props) => {
   const { onItemizedItemEdit, currency, onRowDel, items, onRowAdd } = props;

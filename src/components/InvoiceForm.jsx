@@ -77,8 +77,6 @@ const InvoiceForm = () => {
   const allItems = useSelector(selectItemsList) || [];
   // creating autocomplete state
   const [autocompleteSuggestions, setAutocompleteSuggestions] = useState([]);
-  // creating group state
-  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
     console.log("updtaed formdata from useEffect", formData.items);
@@ -121,10 +119,6 @@ const InvoiceForm = () => {
     setAutocompleteSuggestions([]);
   };
   // function to create group
-  const handleAddGroup = (groupName) => {
-    setGroups((groups) => [...groups, groupName]);
-    console.log(groups);
-  };
 
   const handleRowDel = (itemIdToDelete) => {
     // const updatedItems = formData.items.filter(
@@ -392,35 +386,17 @@ const InvoiceForm = () => {
                 />
               </Col>
             </Row>
-            {/* <InvoiceItem
-              onItemizedItemEdit={onItemizedItemEdit}
-              onRowAdd={handleAddEvent}
-              onRowDel={handleRowDel}
-              currency={formData.currency}
-              items={itemsInInvoice}
-            /> */}
-            <Row>
-              <input
-              type="text"
-              className="form-control"
-              name="itemGroup"
-              value={groups}
-              onChange={(e) => handleAddGroup(e.target.value)}
-              >
-              </input>
-
-            </Row>
             <Row>
               <div className="products-table">
-                <Table bordered hover responsive>
+                <Table  hover responsive>
                   <thead>
                     <tr>
-                      <th style={{ width: "20%" }}>ITEM</th>
-                      <th style={{ width: "50%" }}>DESCRIPTION</th>
-                      <th style={{ width: "20%" }}>QTY</th>
-                      <th style={{ width: "20%" }}>PRICE</th>
+                      <th style={{ width: "20%" }} >Item</th>
+                      
+                      <th style={{ width: "20%" }} >Qty</th>
+                      <th style={{ width: "20%" }} >Price</th>
                       <th className="text-center" style={{ width: "10%" }}>
-                        ACTION
+                        Action
                       </th>
                     </tr>
                   </thead>
@@ -437,7 +413,7 @@ const InvoiceForm = () => {
                             item // Filter allItems based on IDs in formData.items
                           ) => (
                             <tr key={item.itemId}>
-                              <td>
+                              <td style={{ width: "100%" }}>
                                 <div className="autocomplete-container">
                                   <input
                                     type="text"
@@ -446,8 +422,6 @@ const InvoiceForm = () => {
                                     placeholder="Item Name"
                                     value={item.itemName}
                                     onChange={(e) =>
-                                      //  onItemizedItemEdit(e, item.itemId),
-                                      //  onItemNameChange(e.target.value),
                                       handleCombineCall(e, item)
                                     }
                                   />
@@ -471,8 +445,8 @@ const InvoiceForm = () => {
                                     </ul>
                                   )}
                                 </div>
-                              </td>
-                              <td>
+                              {/* </td>
+                              <td> */}
                                 <input
                                   type="text"
                                   className="form-control"
@@ -483,8 +457,16 @@ const InvoiceForm = () => {
                                     onItemizedItemEdit(e, item.itemId)
                                   }
                                 />
+                                <input
+                                type="text"
+                                className="form-control"
+                                name="itemGroup"
+                                placeholder="Grouping (optional)"
+                                value={item.itemGroup}
+                                onChange={(e) => onItemizedItemEdit(e, item.itemId)}
+                                />
                               </td>
-                              <td className="text-center">
+                              <td className="text-center" style={{ minWidth: "70px" }}>
                                 <input
                                   type="number"
                                   className="form-control text-center"
@@ -496,7 +478,7 @@ const InvoiceForm = () => {
                                   }
                                 />
                               </td>
-                              <td className="text-center">
+                              <td className="text-center" style={{ minWidth: "130px" }}>
                                 <input
                                   type="number"
                                   className="form-control text-center"
@@ -509,7 +491,7 @@ const InvoiceForm = () => {
                                   }
                                 />
                               </td>
-                              <td className="text-center">
+                              <td className="text-center" style={{ minWidth: "50px" }}>
                                 <button
                                   className="btn btn-sm btn-danger"
                                   onClick={() => handleRowDel(item.itemId)}
