@@ -9,11 +9,20 @@ import InvoiceItem from "./InvoiceItem";
 import InvoiceModal from "./InvoiceModal";
 import { BiArrowBack } from "react-icons/bi";
 import InputGroup from "react-bootstrap/InputGroup";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addInvoice, updateInvoice } from "../redux/invoicesSlice";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import generateRandomId from "../utils/generateRandomId";
 import { useInvoiceListData } from "../redux/hooks";
+import {
+  addItem,
+  deleteItem,
+  updateItem,
+  selectItemsList,
+} from "../redux/itemSlice";
+import ProductTab from "./ProductTab";
+import { Table } from "react-bootstrap";
+import { BiTrash } from "react-icons/bi";
 
 const InvoiceForm = () => {
   const dispatch = useDispatch();
@@ -25,6 +34,7 @@ const InvoiceForm = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [copyId, setCopyId] = useState("");
+  const [itemsInInvoice, setItemsInInvoice] = useState([]);
   const { getOneInvoice, listSize } = useInvoiceListData();
   const [formData, setFormData] = useState(
     isEdit
@@ -55,25 +65,80 @@ const InvoiceForm = () => {
           discountAmount: "0.00",
           currency: "$",
           items: [
-            {
-              itemId: 0,
-              itemName: "",
-              itemDescription: "",
-              itemPrice: "1.00",
-              itemQuantity: 1,
-            },
+            // {
+            //   itemId: 0,
+            //   itemName: "",
+            //   itemDescription: "",
+            //   itemPrice: "1.00",
+            //   itemQuantity: 1,
+            // },
           ],
         }
   );
+  //getting all items from the global Item state
+  const allItems = useSelector(selectItemsList) || [];
+  // creating autocomplete state
+  const [autocompleteSuggestions, setAutocompleteSuggestions] = useState([]);
+  // creating group state
+  const [groups, setGroups] = useState([]);
 
   useEffect(() => {
-    handleCalculateTotal();
-  }, []);
+    console.log("updtaed formdata from useEffect", formData.items);
+    if (formData.items) {
+      // Check if formData.items exists before accessing it
+      handleCalculateTotal();
+      const updateItems = async () => {
+        const updatedItems = await Promise.all(
+          formData.items.map(async (Itemid) => {
+            const item = allItems.find((item) => item.itemId === Itemid);
+            return item || null; // Return item details or null if not found
+          })
+        );
+        setItemsInInvoice(updatedItems);
+      };
+      updateItems();
+    }
+  }, [formData.items, allItems]);
 
-  const handleRowDel = (itemToDelete) => {
-    const updatedItems = formData.items.filter(
-      (item) => item.itemId !== itemToDelete.itemId
+  // setting autocomplete
+  const onItemNameChange = (inputText) => {
+    const suggestions = allItems.filter((item) =>
+      item.itemName.toLowerCase().includes(inputText.toLowerCase())
     );
+    setAutocompleteSuggestions(suggestions);
+  };
+
+  // updating the id in teh formData
+  const selectAutocompleteItem = (selectedItem, initialItem) => {
+    // Update formData with selected item details
+    console.log("selectedItme", selectedItem);
+    console.log("initialitem", initialItem);
+    console.log("initilaformdata", formData.items);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      items: [...prevFormData.items, selectedItem.itemId],
+    }));
+    console.log("finalformdata", formData.items);
+    // Clear autocomplete suggestions
+    setAutocompleteSuggestions([]);
+  };
+  // function to create group
+  const handleAddGroup = (groupName) => {
+    setGroups((groups) => [...groups, groupName]);
+    console.log(groups);
+  };
+
+  const handleRowDel = (itemIdToDelete) => {
+    // const updatedItems = formData.items.filter(
+    //   (item) => item.itemId !== itemToDelete.itemId
+    // );
+    // dispatch(deleteItem(itemToDelete.itemId));
+    // setFormData({ ...formData, items: updatedItems });
+
+    const updatedItems = formData.items.filter(
+      (itemId) => itemId !== itemIdToDelete
+    );
+    dispatch(deleteItem(itemIdToDelete));
     setFormData({ ...formData, items: updatedItems });
     handleCalculateTotal();
   };
@@ -86,10 +151,14 @@ const InvoiceForm = () => {
       itemDescription: "",
       itemPrice: "1.00",
       itemQuantity: 1,
+      itemGroup: "",
     };
+
+    dispatch(addItem(newItem));
+
     setFormData({
       ...formData,
-      items: [...formData.items, newItem],
+      items: [...formData.items, newItem.itemId], // changed newItem to newItem.itemId
     });
     handleCalculateTotal();
   };
@@ -98,10 +167,17 @@ const InvoiceForm = () => {
     setFormData((prevFormData) => {
       let subTotal = 0;
 
-      prevFormData.items.forEach((item) => {
-        subTotal +=
-          parseFloat(item.itemPrice).toFixed(2) * parseInt(item.itemQuantity);
-      });
+      // prevFormData.items.forEach((item) => {
+      //   subTotal +=
+      //     parseFloat(item.itemPrice).toFixed(2) * parseInt(item.itemQuantity);
+      // });
+      allItems
+        .filter((item) => formData?.items?.includes(item.itemId))
+        .forEach((item) => {
+          subTotal +=
+            parseFloat(item?.itemPrice).toFixed(2) *
+            parseInt(item?.itemQuantity);
+        });
 
       const taxAmount = parseFloat(
         subTotal * (prevFormData.taxRate / 100)
@@ -126,14 +202,26 @@ const InvoiceForm = () => {
   };
 
   const onItemizedItemEdit = (evt, id) => {
-    const updatedItems = formData.items.map((oldItem) => {
+    // const updatedItems = formData.items.map((oldItem) => {
+    //   if (oldItem.itemId === id) {
+    //     return { ...oldItem, [evt.target.name]: evt.target.value };
+    //   }
+    //   return oldItem;
+    // });
+    const updatedItems = allItems.map((oldItem) => {
       if (oldItem.itemId === id) {
         return { ...oldItem, [evt.target.name]: evt.target.value };
       }
       return oldItem;
     });
 
-    setFormData({ ...formData, items: updatedItems });
+    dispatch(
+      updateItem({
+        id,
+        updatedItem: updatedItems.find((item) => item.itemId === id),
+      })
+    );
+    // setFormData({ ...formData, items: updatedItems.itemId });
     handleCalculateTotal();
   };
 
@@ -181,6 +269,11 @@ const InvoiceForm = () => {
     } else {
       alert("Invoice does not exists!!!!!");
     }
+  };
+
+  const handleCombineCall = (evt, item) => {
+    onItemizedItemEdit(evt, item.itemId);
+    onItemNameChange(evt.target.value);
   };
 
   return (
@@ -301,13 +394,141 @@ const InvoiceForm = () => {
                 />
               </Col>
             </Row>
-            <InvoiceItem
+            {/* <InvoiceItem
               onItemizedItemEdit={onItemizedItemEdit}
               onRowAdd={handleAddEvent}
               onRowDel={handleRowDel}
               currency={formData.currency}
-              items={formData.items}
-            />
+              items={itemsInInvoice}
+            /> */}
+            <Row>
+              <input
+              type="text"
+              className="form-control"
+              name="itemGroup"
+              value={groups}
+              onChange={(e) => handleAddGroup(e.target.value)}
+              >
+              </input>
+
+            </Row>
+            <Row>
+              <div className="products-table">
+                <Table bordered hover responsive>
+                  <thead>
+                    <tr>
+                      <th style={{ width: "20%" }}>ITEM</th>
+                      <th style={{ width: "50%" }}>DESCRIPTION</th>
+                      <th style={{ width: "20%" }}>QTY</th>
+                      <th style={{ width: "20%" }}>PRICE</th>
+                      <th className="text-center" style={{ width: "10%" }}>
+                        ACTION
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {formData.items &&
+                      formData.items.length > 0 && // Check if formData.items exists and has items
+                      allItems
+                        .filter(
+                          (item) =>
+                            formData.items.includes(item.itemId)
+                        )
+                        .map(
+                          (
+                            item // Filter allItems based on IDs in formData.items
+                          ) => (
+                            <tr key={item.itemId}>
+                              <td>
+                                <div className="autocomplete-container">
+                                  <input
+                                    type="text"
+                                    className="form-control"
+                                    name="itemName"
+                                    placeholder="Item Name"
+                                    value={item.itemName}
+                                    onChange={(e) =>
+                                      //  onItemizedItemEdit(e, item.itemId),
+                                      //  onItemNameChange(e.target.value),
+                                      handleCombineCall(e, item)
+                                    }
+                                  />
+                                  {autocompleteSuggestions.length > 0 && (
+                                    <ul className="autocomplete-suggestions">
+                                      {autocompleteSuggestions.map(
+                                        (suggestedItem) => (
+                                          <li
+                                            key={suggestedItem.itemId}
+                                            onClick={() =>
+                                              selectAutocompleteItem(
+                                                suggestedItem,
+                                                item
+                                              )
+                                            }
+                                          >
+                                            {suggestedItem.itemName}
+                                          </li>
+                                        )
+                                      )}
+                                    </ul>
+                                  )}
+                                </div>
+                              </td>
+                              <td>
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  name="itemDescription"
+                                  placeholder="Item Description"
+                                  value={item.itemDescription}
+                                  onChange={(e) =>
+                                    onItemizedItemEdit(e, item.itemId)
+                                  }
+                                />
+                              </td>
+                              <td className="text-center">
+                                <input
+                                  type="number"
+                                  className="form-control text-center"
+                                  name="itemQuantity"
+                                  min="1"
+                                  value={item.itemQuantity || 1}
+                                  onChange={(e) =>
+                                    onItemizedItemEdit(e, item.itemId)
+                                  }
+                                />
+                              </td>
+                              <td className="text-center">
+                                <input
+                                  type="number"
+                                  className="form-control text-center"
+                                  name="itemPrice"
+                                  min="1.00"
+                                  step="0.01"
+                                  value={item.itemPrice || 1.0}
+                                  onChange={(e) =>
+                                    onItemizedItemEdit(e, item.itemId)
+                                  }
+                                />
+                              </td>
+                              <td className="text-center">
+                                <button
+                                  className="btn btn-sm btn-danger"
+                                  onClick={() => handleRowDel(item.itemId)}
+                                >
+                                  <BiTrash />
+                                </button>
+                              </td>
+                            </tr>
+                          )
+                        )}
+                  </tbody>
+                </Table>
+                <Button className="fw-bold" onClick={handleAddEvent}>
+                  Add Item
+                </Button>
+              </div>
+            </Row>
             <Row className="mt-4 justify-content-end">
               <Col lg={6}>
                 <div className="d-flex flex-row align-items-start justify-content-between">
@@ -348,6 +569,7 @@ const InvoiceForm = () => {
                 </div>
               </Col>
             </Row>
+
             <hr className="my-4" />
             <Form.Label className="fw-bold">Notes:</Form.Label>
             <Form.Control

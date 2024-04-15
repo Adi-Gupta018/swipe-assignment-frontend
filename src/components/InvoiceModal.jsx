@@ -8,6 +8,8 @@ import Modal from "react-bootstrap/Modal";
 import { BiPaperPlane, BiCloudDownload } from "react-icons/bi";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import {useSelector} from "react-redux"
+import { selectItemsList } from "../redux/itemSlice";
 
 const GenerateInvoice = () => {
   html2canvas(document.querySelector("#invoiceCapture")).then((canvas) => {
@@ -27,6 +29,7 @@ const GenerateInvoice = () => {
 };
 
 const InvoiceModal = (props) => {
+  const globalItems = useSelector(selectItemsList);
   return (
     <div>
       <Modal
@@ -85,18 +88,20 @@ const InvoiceModal = (props) => {
                 </tr>
               </thead>
               <tbody>
-                {props.items.map((item, i) => {
+                {props.items?.map((item, i) => {
+                  const modalItem = globalItems.find((gitem) => gitem.itemId === item)
+                 
                   return (
                     <tr id={i} key={i}>
-                      <td style={{ width: "70px" }}>{item.itemQuantity}</td>
+                      <td style={{ width: "70px" }}>{modalItem?.itemQuantity}</td>
                       <td>
-                        {item.itemName} - {item.itemDescription}
+                        {item.itemName} - {modalItem?.itemDescription}
                       </td>
                       <td className="text-end" style={{ width: "100px" }}>
-                        {props.currency} {item.itemPrice}
+                        {props.currency} {modalItem?.itemPrice}
                       </td>
                       <td className="text-end" style={{ width: "100px" }}>
-                        {props.currency} {item.itemPrice * item.itemQuantity}
+                        {props.currency} {modalItem?.itemPrice * modalItem?.itemQuantity}
                       </td>
                     </tr>
                   );
