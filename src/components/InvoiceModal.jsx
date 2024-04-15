@@ -39,6 +39,7 @@ const InvoiceModal = (props) => {
   );
   const groupedItems = filteredItems.reduce((acc, item) => {
     const group = item.itemGroup || "Ungrouped";
+    console.log(group);
     acc[group] = acc[group] || [];
     acc[group].push(item);
     return acc;
@@ -141,9 +142,10 @@ const InvoiceModal = (props) => {
                     )}
                     {/* Loop through items in the current group */}
                     {groupItems.map((item, i) => (
+                      <>
                       <tr id={i} key={i}>
                         <td style={{ width: "70px" }}>{item?.itemQuantity}</td>
-                        <td>
+                        <td style={{ fontStyle: item.itemGroup == '' ? "normal" : "italic" }}>
                           {item.itemName} - {item?.itemDescription}
                         </td>
                         <td className="text-end" style={{ width: "100px" }}>
@@ -153,6 +155,7 @@ const InvoiceModal = (props) => {
                           {props.currency} {item?.itemPrice * item?.itemQuantity}
                         </td>
                       </tr>
+                      </>
                     ))}
                   </React.Fragment>
                 ))}

@@ -238,6 +238,7 @@ const InvoiceForm = () => {
 
   const handleAddInvoice = () => {
     if (isEdit) {
+      console.log("fromupdate",formData);
       dispatch(updateInvoice({ id: params.id, updatedInvoice: formData }));
       alert("Invoice updated successfuly 🥳");
     } else if (isCopy) {
