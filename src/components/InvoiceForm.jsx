@@ -5,7 +5,6 @@ import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
-import InvoiceItem from "./InvoiceItem";
 import InvoiceModal from "./InvoiceModal";
 import { BiArrowBack } from "react-icons/bi";
 import InputGroup from "react-bootstrap/InputGroup";
@@ -20,7 +19,6 @@ import {
   updateItem,
   selectItemsList,
 } from "../redux/itemSlice";
-import ProductTab from "./ProductTab";
 import { Table } from "react-bootstrap";
 import { BiTrash } from "react-icons/bi";
 

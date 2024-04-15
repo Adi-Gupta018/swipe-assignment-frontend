@@ -8,7 +8,6 @@ import {
 } from "../redux/itemSlice";
 import { Table, Button } from 'react-bootstrap';
 import {BiTrash} from 'react-icons/bi';
-import ProductTableField from "./ProductTableField";
 const ProductTab = () => {
   const [items, setItems] = useState([]);
   const dispatch = useDispatch();
@@ -257,7 +256,7 @@ return (
       ))}
     </tbody>
   </Table>
-  <Button variant="primary" className="fw-bold">Add Item</Button>
+  <Button variant="primary" className="fw-bold" onClick={handleAddItem}>Add Item</Button>
 </div>
 
 );
