@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -30,20 +30,30 @@ const GenerateInvoice = () => {
 };
 
 const InvoiceModal = (props) => {
-  console.log(props.info);
+  console.log(props);
+  
+  // console.log(props);
   const globalItems = useSelector(selectItemsList);
 
   // Filter items based on itemGroup
-  const filteredItems = props.items.map((itemId) =>
-    globalItems.find((gitem) => gitem.itemId === itemId)
-  );
+  const filteredItems = globalItems.filter((item) =>
+  props.items.some((gitem) => gitem === item.itemId)
+);
+
+
+  
+
+
+
+  // console.log("filtered items",filteredItems);
   const groupedItems = filteredItems.reduce((acc, item) => {
     const group = item.itemGroup || "Ungrouped";
-    console.log(group);
+    // console.log(group);
     acc[group] = acc[group] || [];
     acc[group].push(item);
     return acc;
   }, {});
+  // console.log("grouped",groupedItems);
   return (
     <div>
       <Modal
@@ -174,7 +184,7 @@ const InvoiceModal = (props) => {
                     TAX
                   </td>
                   <td className="text-end" style={{ width: "100px" }}>
-                    {props.info.currency} {props.info.taxAmmount}
+                    {props.info.currency} {props.info.taxAmount}
                   </td>
                 </tr>
                 {props.discountAmmount !== 0.0 && (

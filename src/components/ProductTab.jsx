@@ -6,16 +6,18 @@ import {
   deleteItem,
   selectItemsList,
 } from "../redux/itemSlice";
+import {selectInvoiceList} from "../redux/invoicesSlice"
 import { Table, Button } from 'react-bootstrap';
 import {BiTrash} from 'react-icons/bi';
 const ProductTab = () => {
   const [items, setItems] = useState([]);
   const dispatch = useDispatch();
   const allItems = useSelector(selectItemsList);
+  const allInvoices = useSelector(selectInvoiceList);
 
   useEffect(() => {
-    console.log("useEffect called");
-    console.log(allItems);
+    // console.log("useEffect called");
+    // console.log(allItems);
     setItems(allItems);
   }, [allItems]);
 
@@ -26,7 +28,7 @@ const ProductTab = () => {
       }
       return item;
     });
-    console.log("handle item chage",updatedItems);
+    // console.log("handle item chage",updatedItems);
     setItems(updatedItems);
 
     dispatch(

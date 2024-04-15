@@ -75,26 +75,43 @@ const InvoiceForm = () => {
   );
   //getting all items from the global Item state
   const allItems = useSelector(selectItemsList) || [];
+  console.log(allItems);
+  console.log(formData.items);
   // creating autocomplete state
   const [autocompleteSuggestions, setAutocompleteSuggestions] = useState([]);
 
   useEffect(() => {
-    console.log("updtaed formdata from useEffect", formData.items);
-    if (formData.items) {
-      // Check if formData.items exists before accessing it
+    // console.log("updtaed formdata from useEffect", formData.items);
+    // if (formData.items) {
+    //   // Check if formData.items exists before accessing it
+    //   handleCalculateTotal();
+    //   const updateItems = async () => {
+    //     const updatedItems = await Promise.all(
+    //       formData.items.map(async (Itemid) => {
+    //         const item = allItems.find((item) => item.itemId === Itemid);
+    //         return item || null; // Return item details or null if not found
+    //       })
+    //     );
+    //     setItemsInInvoice(updatedItems);
+    //     console.log("invoiceitem",itemsInInvoice);
+    //   };
+    //   updateItems();
+    if (formData.items && formData.items.length > 0) {
+      // Filter out items that exist in allItems
+      const updatedItems = formData.items.filter(itemId =>
+        allItems.some(item => item.itemId === itemId)
+      );
+      // Update formData.items with items that exist in allItems
+      console.log("updated",updatedItems);
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        items: updatedItems
+      }));
+      console.log("allitems",allItems);
+      console.log("formdata itens",formData.items);
       handleCalculateTotal();
-      const updateItems = async () => {
-        const updatedItems = await Promise.all(
-          formData.items.map(async (Itemid) => {
-            const item = allItems.find((item) => item.itemId === Itemid);
-            return item || null; // Return item details or null if not found
-          })
-        );
-        setItemsInInvoice(updatedItems);
-      };
-      updateItems();
     }
-  }, [formData.items, allItems]);
+  }, [allItems]);
 
   // setting autocomplete
   const onItemNameChange = (inputText) => {
@@ -130,6 +147,7 @@ const InvoiceForm = () => {
     const updatedItems = formData.items.filter(
       (itemId) => itemId !== itemIdToDelete
     );
+    console.log("from delete",updatedItems);
     dispatch(deleteItem(itemIdToDelete));
     setFormData({ ...formData, items: updatedItems });
     handleCalculateTotal();
@@ -152,6 +170,7 @@ const InvoiceForm = () => {
       ...formData,
       items: [...formData.items, newItem.itemId], // changed newItem to newItem.itemId
     });
+    console.log("handleadd",formData.items);
     handleCalculateTotal();
   };
 
@@ -163,8 +182,12 @@ const InvoiceForm = () => {
       //   subTotal +=
       //     parseFloat(item.itemPrice).toFixed(2) * parseInt(item.itemQuantity);
       // });
+      const updatedItems = formData.items.filter(itemId =>
+        allItems.some(item => item.itemId === itemId)
+      );
+      console.log("from handle calculate",updatedItems);
       allItems
-        .filter((item) => formData?.items?.includes(item.itemId))
+        .filter((item) => updatedItems.includes(item.itemId))
         .forEach((item) => {
           subTotal +=
             parseFloat(item?.itemPrice).toFixed(2) *
