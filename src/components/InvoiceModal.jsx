@@ -60,8 +60,8 @@ const handleCalculateTotal = () => {
   });
 
   // Convert taxRate and discountRate to numbers, handle empty fields by defaulting to 0
-  const taxRate = parseFloat(props?.taxRate || 0);
-  const discountRate = parseFloat(props?.discountRate || 0);
+  const taxRate = parseFloat(props?.info?.taxRate || 0);
+  const discountRate = parseFloat(props?.info?.discountRate || 0);
 
   // Calculate tax amount
   const calculatedTaxAmount = parseFloat(
