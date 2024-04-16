@@ -72,7 +72,7 @@ const InvoiceList = () => {
                     <th>Invoice No.</th>
                     <th>Bill To</th>
                     <th>Due Date</th>
-                    <th>Total Amt.</th>
+                    
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -115,10 +115,7 @@ const InvoiceRow = ({ invoice, navigate }) => {
       <td>{invoice.invoiceNumber}</td>
       <td className="fw-normal">{invoice.billTo}</td>
       <td className="fw-normal">{invoice.dateOfIssue}</td>
-      <td className="fw-normal">
-        {invoice.currency}
-        {invoice.total}
-      </td>
+      
       <td className="d-flex gap-2">
         <Button variant="outline-primary" onClick={handleEditClick}>
           <BiSolidPencil /> Edit

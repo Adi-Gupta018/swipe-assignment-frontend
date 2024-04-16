@@ -30,6 +30,9 @@ const GenerateInvoice = () => {
 };
 
 const InvoiceModal = (props) => {
+  const [taxAmount, setTaxAmount] = useState("0.00");
+const [discountAmount, setDiscountAmount] = useState("0.00");
+const [total, setTotal] = useState("0.00");
   console.log(props);
   
   // console.log(props);
@@ -40,6 +43,47 @@ const InvoiceModal = (props) => {
   props.items.some((gitem) => gitem === item.itemId)
 );
 
+useEffect(()=>{
+  handleCalculateTotal();
+},[filteredItems])
+ 
+
+
+const handleCalculateTotal = () => {
+  let subTotal = 0;
+  // Calculate subtotal based on filtered items
+  filteredItems.forEach((item) => {
+    // Convert itemPrice and itemQuantity to numbers, handle empty fields by defaulting to 0
+    const price = parseFloat(item?.itemPrice || 0);
+    const quantity = parseInt(item?.itemQuantity || 0);
+    subTotal += price * quantity;
+  });
+
+  // Convert taxRate and discountRate to numbers, handle empty fields by defaulting to 0
+  const taxRate = parseFloat(props?.taxRate || 0);
+  const discountRate = parseFloat(props?.discountRate || 0);
+
+  // Calculate tax amount
+  const calculatedTaxAmount = parseFloat(
+    subTotal * (taxRate / 100)
+  ).toFixed(2);
+
+  // Calculate discount amount
+  const calculatedDiscountAmount = parseFloat(
+    subTotal * (discountRate / 100)
+  ).toFixed(2);
+
+  // Calculate total
+  const calculatedTotal = (
+    subTotal -
+    parseFloat(calculatedDiscountAmount) +
+    parseFloat(calculatedTaxAmount)
+  ).toFixed(2);
+  setTaxAmount(calculatedTaxAmount);
+  setDiscountAmount(calculatedDiscountAmount);
+  setTotal(calculatedTotal);
+  console.log(calculatedTaxAmount, calculatedTotal, calculatedDiscountAmount);
+};
 
   
 
@@ -79,7 +123,7 @@ const InvoiceModal = (props) => {
               <h6 className="fw-bold mt-1 mb-2">Amount&nbsp;Due:</h6>
               <h5 className="fw-bold text-secondary">
                 {" "}
-                {props.info.currency} {props.info.total}
+                {props.info.currency} { total}
               </h5>
             </div>
           </div>
@@ -184,7 +228,7 @@ const InvoiceModal = (props) => {
                     TAX
                   </td>
                   <td className="text-end" style={{ width: "100px" }}>
-                    {props.info.currency} {props.info.taxAmount}
+                    {props.info.currency} {taxAmount}
                   </td>
                 </tr>
                 {props.discountAmmount !== 0.0 && (
@@ -194,7 +238,7 @@ const InvoiceModal = (props) => {
                       DISCOUNT
                     </td>
                     <td className="text-end" style={{ width: "100px" }}>
-                      {props.info.currency} {props.info.discountAmmount}
+                      {props.info.currency} {discountAmount}
                     </td>
                   </tr>
                 )}
@@ -204,7 +248,7 @@ const InvoiceModal = (props) => {
                     TOTAL
                   </td>
                   <td className="text-end" style={{ width: "100px" }}>
-                    {props.info.currency} {props.info.total}
+                    {props.info.currency} {total}
                   </td>
                 </tr>
               </tbody>
