@@ -30,7 +30,7 @@ const InvoiceList = () => {
     <>
     <Row className="justify-content-center">
       <Col xs={12} md={8} lg={9}>
-        <h3 className="fw-bold pb-4 text-center">Swipe Assignment</h3>
+      
         <Card className="p-4 mb-4">
           {isListEmpty ? (
             <div className="text-center">
